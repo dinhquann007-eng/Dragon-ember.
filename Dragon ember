@@ -1,0 +1,464 @@
+
+-- DRAGON EMBER VFX - FULL VERSION
+-- Bản chỉnh sửa bởi Doi
+-- Logo 85x85, kéo thả, bật/tắt bảng màu và VFX.
+-- Dùng trong Roblox Studio cho game bạn sở hữu/quản lý.
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local GUI_NAME = "DragonEmberVFX"
+
+----------------------------------------------------------------
+-- XÓA PHIÊN BẢN CŨ
+----------------------------------------------------------------
+
+local old = playerGui:FindFirstChild(GUI_NAME)
+if old then
+	old:Destroy()
+end
+
+----------------------------------------------------------------
+-- CẤU HÌNH
+----------------------------------------------------------------
+
+local enabled = true
+local brightness = 2
+
+local EMBER = {
+	Color3.fromRGB(255, 245, 190),
+	Color3.fromRGB(255, 190, 70),
+	Color3.fromRGB(255, 95, 25),
+	Color3.fromRGB(205, 35, 12),
+	Color3.fromRGB(75, 10, 5),
+}
+
+local emberSequence = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, EMBER[1]),
+	ColorSequenceKeypoint.new(0.22, EMBER[2]),
+	ColorSequenceKeypoint.new(0.48, EMBER[3]),
+	ColorSequenceKeypoint.new(0.72, EMBER[4]),
+	ColorSequenceKeypoint.new(1, EMBER[5]),
+})
+
+----------------------------------------------------------------
+-- GUI
+----------------------------------------------------------------
+
+local gui = Instance.new("ScreenGui")
+gui.Name = GUI_NAME
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+gui.Parent = playerGui
+
+local function makeCorner(object, radius)
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, radius)
+	corner.Parent = object
+	return corner
+end
+
+local function makeStroke(object, thickness)
+	local stroke = Instance.new("UIStroke")
+	stroke.Thickness = thickness
+	stroke.Transparency = 0.15
+	stroke.Parent = object
+	return stroke
+end
+
+----------------------------------------------------------------
+-- LOGO 85x85
+----------------------------------------------------------------
+
+local logo = Instance.new("TextButton")
+logo.Name = "EmberLogo"
+logo.Size = UDim2.fromOffset(85, 85)
+logo.Position = UDim2.new(0, 18, 0.5, -42.5)
+logo.BackgroundColor3 = Color3.fromRGB(55, 17, 7)
+logo.Text = "🔥"
+logo.TextSize = 38
+logo.Font = Enum.Font.GothamBold
+logo.AutoButtonColor = false
+logo.Active = true
+logo.Parent = gui
+
+makeCorner(logo, 999)
+makeStroke(logo, 2)
+
+local logoGradient = Instance.new("UIGradient")
+logoGradient.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 180, 55)),
+	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(235, 55, 15)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(70, 8, 4)),
+})
+logoGradient.Rotation = 45
+logoGradient.Parent = logo
+
+----------------------------------------------------------------
+-- PANEL
+----------------------------------------------------------------
+
+local panel = Instance.new("Frame")
+panel.Name = "EmberPanel"
+panel.Size = UDim2.fromOffset(238, 230)
+panel.Position = UDim2.new(0, 113, 0.5, -115)
+panel.BackgroundColor3 = Color3.fromRGB(17, 8, 6)
+panel.Active = true
+panel.Parent = gui
+
+makeCorner(panel, 15)
+makeStroke(panel, 1.5)
+
+local panelGradient = Instance.new("UIGradient")
+panelGradient.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 13, 7)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(12, 6, 5)),
+})
+panelGradient.Rotation = 90
+panelGradient.Parent = panel
+
+----------------------------------------------------------------
+-- HEADER
+----------------------------------------------------------------
+
+local dragHeader = Instance.new("Frame")
+dragHeader.Name = "DragHeader"
+dragHeader.BackgroundTransparency = 1
+dragHeader.Position = UDim2.fromOffset(0, 0)
+dragHeader.Size = UDim2.new(1, 0, 0, 62)
+dragHeader.Active = true
+dragHeader.Parent = panel
+
+local title = Instance.new("TextLabel")
+title.BackgroundTransparency = 1
+title.Position = UDim2.fromOffset(12, 8)
+title.Size = UDim2.new(1, -24, 0, 32)
+title.Text = "DRAGON EMBER"
+title.TextColor3 = Color3.fromRGB(255, 180, 65)
+title.TextSize = 18
+title.Font = Enum.Font.GothamBold
+title.Parent = dragHeader
+
+local status = Instance.new("TextLabel")
+status.BackgroundTransparency = 1
+status.Position = UDim2.fromOffset(12, 39)
+status.Size = UDim2.new(1, -24, 0, 23)
+status.Text = "VFX: BẬT"
+status.TextColor3 = Color3.fromRGB(255, 220, 160)
+status.TextSize = 12
+status.Font = Enum.Font.Gotham
+status.Parent = dragHeader
+
+----------------------------------------------------------------
+-- PREVIEW MÀU
+----------------------------------------------------------------
+
+local preview = Instance.new("Frame")
+preview.Position = UDim2.fromOffset(12, 68)
+preview.Size = UDim2.new(1, -24, 0, 40)
+preview.BackgroundColor3 = EMBER[3]
+preview.Parent = panel
+
+makeCorner(preview, 10)
+
+local previewGradient = Instance.new("UIGradient")
+previewGradient.Color = emberSequence
+previewGradient.Parent = preview
+
+----------------------------------------------------------------
+-- NÚT BẬT/TẮT
+----------------------------------------------------------------
+
+local toggle = Instance.new("TextButton")
+toggle.Position = UDim2.fromOffset(12, 119)
+toggle.Size = UDim2.new(1, -24, 0, 40)
+toggle.BackgroundColor3 = Color3.fromRGB(125, 35, 10)
+toggle.Text = "EMBER: BẬT"
+toggle.TextColor3 = Color3.new(1, 1, 1)
+toggle.TextSize = 13
+toggle.Font = Enum.Font.GothamBold
+toggle.AutoButtonColor = false
+toggle.Parent = panel
+
+makeCorner(toggle, 10)
+
+----------------------------------------------------------------
+-- NÚT ĐỘ SÁNG
+----------------------------------------------------------------
+
+local brightnessButton = Instance.new("TextButton")
+brightnessButton.Position = UDim2.fromOffset(12, 168)
+brightnessButton.Size = UDim2.new(1, -24, 0, 40)
+brightnessButton.BackgroundColor3 = Color3.fromRGB(48, 19, 9)
+brightnessButton.Text = "ĐỘ SÁNG: 2"
+brightnessButton.TextColor3 = Color3.fromRGB(255, 210, 135)
+brightnessButton.TextSize = 13
+brightnessButton.Font = Enum.Font.GothamBold
+brightnessButton.AutoButtonColor = false
+brightnessButton.Parent = panel
+
+makeCorner(brightnessButton, 10)
+
+----------------------------------------------------------------
+-- QUẢN LÝ VFX
+----------------------------------------------------------------
+
+local originalValues = {}
+local processed = {}
+
+local function isVFX(object)
+	return object:IsA("ParticleEmitter")
+		or object:IsA("Trail")
+		or object:IsA("Beam")
+end
+
+local function saveOriginal(object)
+	if originalValues[object] then
+		return
+	end
+
+	if object:IsA("ParticleEmitter") or object:IsA("Trail") then
+		originalValues[object] = {
+			Color = object.Color,
+			LightEmission = object.LightEmission,
+		}
+	elseif object:IsA("Beam") then
+		originalValues[object] = {
+			Color = object.Color,
+			Brightness = object.Brightness,
+		}
+	end
+end
+
+local function applyEmber(object)
+	if not enabled or not object.Parent or not isVFX(object) then
+		return
+	end
+
+	saveOriginal(object)
+
+	if object:IsA("ParticleEmitter") or object:IsA("Trail") then
+		object.Color = emberSequence
+		object.LightEmission = math.clamp(
+			0.35 + brightness * 0.12,
+			0,
+			0.85
+		)
+	elseif object:IsA("Beam") then
+		object.Color = emberSequence
+		object.Brightness = math.clamp(brightness, 0, 4)
+	end
+
+	processed[object] = true
+end
+
+----------------------------------------------------------------
+-- KHÔI PHỤC VFX
+----------------------------------------------------------------
+
+local function restoreVFX()
+	for object, data in pairs(originalValues) do
+		if object and object.Parent then
+			if object:IsA("ParticleEmitter") or object:IsA("Trail") then
+				object.Color = data.Color
+				object.LightEmission = data.LightEmission
+			elseif object:IsA("Beam") then
+				object.Color = data.Color
+				object.Brightness = data.Brightness
+			end
+		end
+	end
+
+	table.clear(processed)
+end
+
+----------------------------------------------------------------
+-- QUÉT VFX
+----------------------------------------------------------------
+
+local function scanVFX()
+	for _, object in ipairs(workspace:GetDescendants()) do
+		if isVFX(object) then
+			applyEmber(object)
+		end
+	end
+end
+
+----------------------------------------------------------------
+-- PHÁT HIỆN VFX MỚI
+----------------------------------------------------------------
+
+workspace.DescendantAdded:Connect(function(object)
+	if not enabled or not isVFX(object) then
+		return
+	end
+
+	task.defer(function()
+		if object.Parent and enabled then
+			applyEmber(object)
+		end
+	end)
+end)
+
+----------------------------------------------------------------
+-- KÉO LOGO VÀ CLICK
+----------------------------------------------------------------
+
+do
+	local dragging = false
+	local dragStart
+	local startPosition
+	local moved = false
+	local activeInput
+
+	logo.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1
+			or input.UserInputType == Enum.UserInputType.Touch then
+
+			dragging = true
+			moved = false
+			activeInput = input
+			dragStart = input.Position
+			startPosition = logo.Position
+		end
+	end)
+
+	logo.InputEnded:Connect(function(input)
+		if input == activeInput then
+			dragging = false
+			activeInput = nil
+
+			if not moved then
+				panel.Visible = not panel.Visible
+			end
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(input)
+		if not dragging then
+			return
+		end
+
+		if input.UserInputType ~= Enum.UserInputType.MouseMovement
+			and input.UserInputType ~= Enum.UserInputType.Touch then
+			return
+		end
+
+		local delta = input.Position - dragStart
+
+		if math.abs(delta.X) > 5 or math.abs(delta.Y) > 5 then
+			moved = true
+		end
+
+		logo.Position = UDim2.new(
+			startPosition.X.Scale,
+			startPosition.X.Offset + delta.X,
+			startPosition.Y.Scale,
+			startPosition.Y.Offset + delta.Y
+		)
+	end)
+end
+
+----------------------------------------------------------------
+-- KÉO PANEL BẰNG HEADER
+----------------------------------------------------------------
+
+do
+	local dragging = false
+	local dragStart
+	local startPosition
+
+	dragHeader.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1
+			or input.UserInputType == Enum.UserInputType.Touch then
+
+			dragging = true
+			dragStart = input.Position
+			startPosition = panel.Position
+		end
+	end)
+
+	dragHeader.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1
+			or input.UserInputType == Enum.UserInputType.Touch then
+
+			dragging = false
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(input)
+		if not dragging then
+			return
+		end
+
+		if input.UserInputType ~= Enum.UserInputType.MouseMovement
+			and input.UserInputType ~= Enum.UserInputType.Touch then
+			return
+		end
+
+		local delta = input.Position - dragStart
+
+		panel.Position = UDim2.new(
+			startPosition.X.Scale,
+			startPosition.X.Offset + delta.X,
+			startPosition.Y.Scale,
+			startPosition.Y.Offset + delta.Y
+		)
+	end)
+end
+
+----------------------------------------------------------------
+-- BẬT / TẮT VFX
+----------------------------------------------------------------
+
+toggle.MouseButton1Click:Connect(function()
+	enabled = not enabled
+
+	if enabled then
+		status.Text = "VFX: BẬT"
+		toggle.Text = "EMBER: BẬT"
+		toggle.BackgroundColor3 = Color3.fromRGB(125, 35, 10)
+		scanVFX()
+	else
+		status.Text = "VFX: TẮT"
+		toggle.Text = "EMBER: TẮT"
+		toggle.BackgroundColor3 = Color3.fromRGB(35, 24, 20)
+		restoreVFX()
+	end
+end)
+
+----------------------------------------------------------------
+-- ĐỔI ĐỘ SÁNG
+----------------------------------------------------------------
+
+brightnessButton.MouseButton1Click:Connect(function()
+	brightness += 1
+
+	if brightness > 4 then
+		brightness = 1
+	end
+
+	brightnessButton.Text = "ĐỘ SÁNG: " .. brightness
+
+	if not enabled then
+		return
+	end
+
+	for object in pairs(processed) do
+		if object and object.Parent then
+			applyEmber(object)
+		else
+			processed[object] = nil
+		end
+	end
+end)
+
+----------------------------------------------------------------
+-- KHỞI ĐỘNG
+----------------------------------------------------------------
+
+scanVFX()
